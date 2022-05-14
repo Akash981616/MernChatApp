@@ -1,5 +1,5 @@
 const express = require("express");
-const { chats } = require("../backend/data/data.js");
+const { chats } = require("./data");
 const dotenv = require("dotenv");
 const connectDB=require("./config/db");
 const colors=require("colors");
@@ -8,43 +8,49 @@ const userRoutes=require("./routes/userRoutes");
 const chatRoutes=require('./routes/chatRoutes')
 const messageRoutes = require("./routes/messageRoutes");
 const app = express()
-
+const path=require("path");
 
 dotenv.config();
 
 connectDB();
+app.use(express.json()); // to accept json data
 
-app.use(express.json());
-
-app.get("/", (req, res) => {
-  res.send(" homepage");
-});
-
-app.get("/api/chat", (req, res) => {
-  res.send(chats);
-});
+// app.get("/", (req, res) => {
+//   res.send("API Running!");
+// });
 
 app.use("/api/user", userRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/message", messageRoutes);
 
-app.get("/api/chat/:id", (req, res) => {
-  const singelChat = chats.find((e) => e._id === req.params.id);
-  res.send(singelChat);
-  console.log(singelChat,"working".bgMagenta);
-  console.log();
-});
+// --------------------------deployment------------------------------
 
+const __dirname1 = path.resolve();
 
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname1, "/frontend/build")));
+
+  app.get("*", (req, res) =>
+    res.sendFile(path.resolve(__dirname1, "frontend", "build", "index.html"))
+  );
+} else {
+  app.get("/", (req, res) => {
+    res.send("API is running..");
+  });
+}
+
+// --------------------------deployment------------------------------
+
+// Error Handling middlewares
 app.use(notFound);
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 3000;
-const server=app.listen(PORT, () => {
+const PORT = process.env.PORT;
 
-  console.log(`Server is running on port ${PORT}`.yellow.bold);
-  
-});
+const server = app.listen(
+  PORT,
+  console.log(`Server running on PORT ${PORT}...`.yellow.bold)
+);
 
 const io = require("socket.io")(server, {
   pingTimeout: 60000,

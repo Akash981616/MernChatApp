@@ -1,4 +1,3 @@
-
 const chats = [
   {
     isGroupChat: false,
@@ -107,6 +106,3 @@ const chats = [
     },
   },
 ];
-module.exports={
-    chats
-}

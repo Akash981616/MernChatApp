@@ -199,4 +199,5 @@ module.exports = {
   createGroupChat,
   renameGroup,
   addToGroup,
-  removeFromGroup,}
+  removeFromGroup,
+};
